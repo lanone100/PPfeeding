@@ -4,126 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PP 押出機下料計算器</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg: #0e0f11;
-            --panel: #16181d;
-            --border: #2a2d35;
-            --accent: #f0a500;
-            --accent2: #e05c2a;
-            --text: #d4d6db;
-            --muted: #5a5e6b;
-            --red: #e05c2a;
-            --green: #3ec98a;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --border: #e0e4ea;
+            --accent: #1a6fff;
+            --pp-color: #1a6fff;
+            --mb-color: #ff7c00;
+            --add-color: #00b87a;
+            --text-dark: #111827;
+            --text-mid: #4b5563;
+            --text-light: #9ca3af;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
         }
 
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background: var(--bg);
-            color: var(--text);
+            color: var(--text-dark);
             min-height: 100vh;
             padding: 24px 16px 60px;
-            background-image: 
-                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px),
-                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
         }
 
-        .container {
-            max-width: 520px;
-            margin: 0 auto;
-        }
+        .container { max-width: 520px; margin: 0 auto; }
 
         /* Header */
         .header {
-            margin-bottom: 32px;
-            position: relative;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
         }
         .header-tag {
             font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: var(--accent);
-            letter-spacing: 0.2em;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .header h1 {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 3rem;
-            letter-spacing: 0.05em;
+            font-size: 2.8rem;
+            letter-spacing: 0.04em;
             line-height: 1;
-            color: #fff;
+            color: var(--text-dark);
         }
         .header h1 span { color: var(--accent); }
-        .header-sub {
+        .header-badge {
+            background: var(--accent);
+            color: #fff;
             font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--muted);
-            margin-top: 6px;
-            letter-spacing: 0.05em;
-        }
-        .header-line {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 80px;
-            height: 80px;
-            border-top: 2px solid var(--accent);
-            border-right: 2px solid var(--accent);
-            opacity: 0.4;
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            white-space: nowrap;
         }
 
-        /* Panel */
-        .panel {
-            background: var(--panel);
+        /* Card */
+        .card {
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 4px;
-            margin-bottom: 16px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 14px;
             overflow: hidden;
         }
-        .panel-header {
+        .card-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 12px 20px;
+            padding: 14px 20px;
             border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.02);
+            background: #f8fafc;
         }
-        .panel-num {
+        .card-num {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: var(--accent);
             line-height: 1;
-            min-width: 24px;
         }
-        .panel-title {
-            font-size: 0.78rem;
+        .card-title {
+            font-size: 0.88rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #fff;
+            letter-spacing: 0.04em;
+            color: var(--text-dark);
         }
-        .panel-body { padding: 20px; }
+        .card-body { padding: 20px; }
 
-        /* Input row */
+        /* Inputs */
         .input-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
         }
-        .input-row:last-child { margin-bottom: 0; }
-        .input-group { position: relative; }
         .input-group label {
             display: block;
             font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--muted);
-            letter-spacing: 0.1em;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
         }
         .input-wrap {
             position: relative;
@@ -132,13 +122,14 @@
         }
         .input-wrap input {
             width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 3px;
-            color: #fff;
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-dark);
             font-family: 'DM Mono', monospace;
-            font-size: 1rem;
-            padding: 10px 38px 10px 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: 11px 40px 11px 14px;
             transition: border-color 0.2s, box-shadow 0.2s;
             -moz-appearance: textfield;
         }
@@ -147,204 +138,253 @@
         .input-wrap input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(240,165,0,0.15);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,111,255,0.12);
         }
+        .input-wrap input::placeholder { color: var(--text-light); font-weight: 400; }
         .input-unit {
             position: absolute;
-            right: 10px;
+            right: 12px;
             font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-light);
             pointer-events: none;
         }
 
-        /* Divider */
-        .divider {
+        /* ===== THICK RATIO BAR ===== */
+        .ratio-section {
+            background: linear-gradient(135deg, #eef3ff 0%, #f0f7ff 100%);
+            border: 2px solid #c7d8ff;
+            border-radius: 12px;
+            padding: 18px 18px 16px;
+        }
+        .ratio-section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .ratio-bar-track {
+            height: 48px;
+            background: #dde4ee;
+            border-radius: 10px;
+            display: flex;
+            overflow: hidden;
+            gap: 3px;
+            margin-bottom: 14px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .bar-seg {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 20px 0;
-            color: var(--muted);
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.1em;
+            justify-content: center;
+            min-width: 0;
+            transition: flex 0.35s cubic-bezier(0.4,0,0.2,1);
+            overflow: hidden;
+            position: relative;
         }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-            border-style: dashed;
-            border-color: var(--border);
-            background: repeating-linear-gradient(90deg, var(--border) 0, var(--border) 4px, transparent 4px, transparent 8px);
+        .bar-seg:first-child { border-radius: 9px 0 0 9px; }
+        .bar-seg:last-child { border-radius: 0 9px 9px 0; }
+        .bar-seg-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.97);
+            white-space: nowrap;
+            pointer-events: none;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            letter-spacing: 0.04em;
+        }
+        #bar_pp  { background: linear-gradient(180deg, #3d8bff 0%, #1a6fff 100%); }
+        #bar_mb  { background: linear-gradient(180deg, #ff9a33 0%, #ff7c00 100%); }
+        #bar_add { background: linear-gradient(180deg, #2dd897 0%, #00b87a 100%); }
+
+        .ratio-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .ratio-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 13px 6px 9px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .pill-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .pill-name {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-mid);
+        }
+        .pill-pct {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-dark);
         }
 
-        /* Mode toggle */
+        /* Mode tabs */
         .mode-tabs {
             display: flex;
-            gap: 0;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 3px;
+            background: #f0f2f5;
+            border: 2px solid var(--border);
+            border-radius: 9px;
             overflow: hidden;
             margin-bottom: 16px;
+            padding: 3px;
+            gap: 3px;
         }
         .mode-tab {
             flex: 1;
-            padding: 8px;
+            padding: 10px 8px;
             text-align: center;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.08em;
-            color: var(--muted);
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-mid);
             cursor: pointer;
             border: none;
             background: transparent;
             transition: all 0.2s;
+            border-radius: 6px;
         }
         .mode-tab.active {
             background: var(--accent);
-            color: #000;
-            font-weight: 500;
-        }
-
-        /* PP ratio bar */
-        .ratio-bar-wrap {
-            margin: 16px 0 8px;
-        }
-        .ratio-bar-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--muted);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .ratio-bar {
-            height: 6px;
-            background: var(--bg);
-            border-radius: 3px;
-            display: flex;
-            overflow: hidden;
-            gap: 1px;
-        }
-        .bar-pp { background: #4a9eff; transition: flex 0.3s; }
-        .bar-mb { background: var(--accent); transition: flex 0.3s; }
-        .bar-add { background: var(--green); transition: flex 0.3s; }
-        .ratio-legend {
-            display: flex;
-            gap: 14px;
-            margin-top: 8px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--muted);
-        }
-        .legend-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(26,111,255,0.3);
         }
 
         /* Results */
-        .result-panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 4px;
+        .result-card {
+            background: var(--card);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(26,111,255,0.12);
             overflow: hidden;
         }
+        .result-header {
+            background: var(--accent);
+            padding: 13px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result-header-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
         .result-row {
             display: flex;
             align-items: center;
-            padding: 14px 20px;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--border);
             transition: background 0.15s;
         }
+        .result-row:hover { background: #fafbfd; }
         .result-row:last-child { border-bottom: none; }
-        .result-row:hover { background: rgba(255,255,255,0.02); }
         .result-row.total {
-            background: rgba(240,165,0,0.07);
-            border-top: 1px solid rgba(240,165,0,0.2);
+            background: #fffcf0;
+            border-top: 2px solid #ffe4a0;
         }
-        .result-label {
-            flex: 1;
+        .result-row.total:hover { background: #fff8e0; }
+
+        .result-color-swatch {
+            width: 10px;
+            height: 48px;
+            border-radius: 5px;
+            margin-right: 16px;
+            flex-shrink: 0;
         }
+        .result-info { flex: 1; }
         .result-name {
-            font-size: 0.78rem;
-            color: #fff;
+            font-size: 0.95rem;
             font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 5px;
         }
-        .result-pct {
+        .result-pct-badge {
+            display: inline-block;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 5px;
             font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--muted);
-            margin-top: 2px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            padding: 2px 8px;
         }
-        .result-val {
-            text-align: right;
-        }
+        .result-value { text-align: right; }
         .result-num {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
+            font-size: 2.4rem;
             line-height: 1;
-            color: #fff;
+            color: var(--text-dark);
+            letter-spacing: 0.03em;
         }
-        .result-num.accent { color: var(--accent); }
-        .result-unit {
+        .result-num.total-num { color: #b45309; font-size: 2.6rem; }
+        .result-unit-label {
             font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--muted);
-            margin-top: 2px;
-        }
-        .result-color-bar {
-            width: 3px;
-            height: 36px;
-            border-radius: 2px;
-            margin-right: 14px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 3px;
+            text-align: right;
         }
 
-        /* Footer */
         .footer {
             text-align: center;
             font-family: 'DM Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--muted);
-            margin-top: 28px;
+            font-size: 0.63rem;
+            color: var(--text-light);
+            margin-top: 24px;
             letter-spacing: 0.1em;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-        .panel, .result-panel { animation: fadeIn 0.4s ease both; }
-        .panel:nth-child(2) { animation-delay: 0.05s; }
-        .panel:nth-child(3) { animation-delay: 0.1s; }
-        .result-panel { animation-delay: 0.15s; }
+        .card, .result-card { animation: fadeUp 0.4s ease both; }
+        .card:nth-child(2) { animation-delay: 0.06s; }
+        .card:nth-child(3) { animation-delay: 0.12s; }
+        .result-card { animation-delay: 0.18s; }
     </style>
 </head>
 <body>
 <div class="container">
 
     <div class="header">
-        <div class="header-line"></div>
-        <div class="header-tag">Polypropylene Extrusion</div>
-        <h1>下料<span>計算</span></h1>
-        <div class="header-sub">DOSING CALCULATOR · v2.0</div>
+        <div class="header-left">
+            <div class="header-tag">Polypropylene Extrusion</div>
+            <h1>下料<span>計算</span></h1>
+        </div>
+        <div class="header-badge">DOSING v2.0</div>
     </div>
 
-    <!-- Panel 1: Formula -->
-    <div class="panel">
-        <div class="panel-header">
-            <span class="panel-num">01</span>
-            <span class="panel-title">配方比例設定</span>
+    <!-- Card 1 -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-num">01</span>
+            <span class="card-title">配方比例設定</span>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             <div class="input-row">
                 <div class="input-group">
                     <label>色母 Color MB</label>
@@ -362,34 +402,45 @@
                 </div>
             </div>
 
-            <div class="ratio-bar-wrap">
-                <div class="ratio-bar-label">配方比例分佈</div>
-                <div class="ratio-bar">
-                    <div class="bar-pp" id="bar_pp"></div>
-                    <div class="bar-mb" id="bar_mb"></div>
-                    <div class="bar-add" id="bar_add"></div>
+            <div class="ratio-section">
+                <div class="ratio-section-label">配方比例分佈</div>
+                <div class="ratio-bar-track">
+                    <div class="bar-seg" id="bar_pp"><span class="bar-seg-label" id="bar_pp_lbl">PP 98.0%</span></div>
+                    <div class="bar-seg" id="bar_mb"><span class="bar-seg-label" id="bar_mb_lbl">MB 2%</span></div>
+                    <div class="bar-seg" id="bar_add"><span class="bar-seg-label" id="bar_add_lbl"></span></div>
                 </div>
-                <div class="ratio-legend">
-                    <div class="legend-item"><div class="legend-dot" style="background:#4a9eff"></div><span id="leg_pp">PP 98.0%</span></div>
-                    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span id="leg_mb">MB 2.0%</span></div>
-                    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span id="leg_add">ADD 0.0%</span></div>
+                <div class="ratio-pills">
+                    <div class="ratio-pill">
+                        <div class="pill-dot" style="background:var(--pp-color)"></div>
+                        <span class="pill-name">PP 主料</span>
+                        <span class="pill-pct" id="leg_pp">98.0%</span>
+                    </div>
+                    <div class="ratio-pill">
+                        <div class="pill-dot" style="background:var(--mb-color)"></div>
+                        <span class="pill-name">色母</span>
+                        <span class="pill-pct" id="leg_mb">2.0%</span>
+                    </div>
+                    <div class="ratio-pill">
+                        <div class="pill-dot" style="background:var(--add-color)"></div>
+                        <span class="pill-name">添加劑</span>
+                        <span class="pill-pct" id="leg_add">0.0%</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Panel 2: Input mode -->
-    <div class="panel">
-        <div class="panel-header">
-            <span class="panel-num">02</span>
-            <span class="panel-title">下料計算 (二選一)</span>
+    <!-- Card 2 -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-num">02</span>
+            <span class="card-title">下料計算（二選一）</span>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             <div class="mode-tabs">
-                <button class="mode-tab active" id="tab_total" onclick="switchMode('total')">模式 A · 總產量</button>
-                <button class="mode-tab" id="tab_main" onclick="switchMode('main')">模式 B · 主料重量</button>
+                <button class="mode-tab active" id="tab_total" onclick="switchMode('total')">模式 A · 輸入總產量</button>
+                <button class="mode-tab" id="tab_main" onclick="switchMode('main')">模式 B · 輸入主料重</button>
             </div>
-
             <div id="input_total">
                 <div class="input-group">
                     <label>預計總產量 Total Output</label>
@@ -399,12 +450,11 @@
                     </div>
                 </div>
             </div>
-
             <div id="input_main" style="display:none">
                 <div class="input-group">
                     <label>固定主料重量 PP Base Weight</label>
                     <div class="input-wrap">
-                        <input type="number" id="main_weight" placeholder="例如 25 (一袋)" oninput="calculate('main')">
+                        <input type="number" id="main_weight" placeholder="例如 25（一袋）" oninput="calculate('main')">
                         <span class="input-unit">kg</span>
                     </div>
                 </div>
@@ -413,55 +463,57 @@
     </div>
 
     <!-- Results -->
-    <div class="result-panel">
-        <div class="panel-header" style="background:rgba(240,165,0,0.05); border-color: rgba(240,165,0,0.2);">
-            <span class="panel-num">↓</span>
-            <span class="panel-title">配料清單 Bill of Materials</span>
+    <div class="result-card">
+        <div class="result-header">
+            <span style="font-size:1rem">📋</span>
+            <span class="result-header-title">配料清單 · BILL OF MATERIALS</span>
         </div>
-        <div id="result_rows">
-            <div class="result-row">
-                <div class="result-color-bar" style="background:#4a9eff"></div>
-                <div class="result-label">
-                    <div class="result-name">PP 主料</div>
-                    <div class="result-pct" id="pp_pct">98.0 %</div>
-                </div>
-                <div class="result-val">
-                    <div class="result-num" id="pp_val">—</div>
-                    <div class="result-unit" id="pp_unit">kg</div>
-                </div>
+
+        <div class="result-row">
+            <div class="result-color-swatch" style="background:var(--pp-color)"></div>
+            <div class="result-info">
+                <div class="result-name">PP 主料</div>
+                <span class="result-pct-badge" id="pp_pct">98.0 %</span>
             </div>
-            <div class="result-row">
-                <div class="result-color-bar" style="background:var(--accent)"></div>
-                <div class="result-label">
-                    <div class="result-name">色母 Color MB</div>
-                    <div class="result-pct" id="mb_pct">2.0 %</div>
-                </div>
-                <div class="result-val">
-                    <div class="result-num" id="mb_val">—</div>
-                    <div class="result-unit" id="mb_unit">kg</div>
-                </div>
+            <div class="result-value">
+                <div class="result-num" id="pp_val">—</div>
+                <div class="result-unit-label" id="pp_unit">kg</div>
             </div>
-            <div class="result-row">
-                <div class="result-color-bar" style="background:var(--green)"></div>
-                <div class="result-label">
-                    <div class="result-name">添加劑 Additive</div>
-                    <div class="result-pct" id="add_pct">0.0 %</div>
-                </div>
-                <div class="result-val">
-                    <div class="result-num" id="add_val">—</div>
-                    <div class="result-unit" id="add_unit">kg</div>
-                </div>
+        </div>
+
+        <div class="result-row">
+            <div class="result-color-swatch" style="background:var(--mb-color)"></div>
+            <div class="result-info">
+                <div class="result-name">色母 Color MB</div>
+                <span class="result-pct-badge" id="mb_pct">2.0 %</span>
             </div>
-            <div class="result-row total">
-                <div class="result-color-bar" style="background:var(--accent)"></div>
-                <div class="result-label">
-                    <div class="result-name" style="color:var(--accent)">總重 Total</div>
-                    <div class="result-pct">100.0 %</div>
-                </div>
-                <div class="result-val">
-                    <div class="result-num accent" id="total_val">—</div>
-                    <div class="result-unit">kg</div>
-                </div>
+            <div class="result-value">
+                <div class="result-num" id="mb_val">—</div>
+                <div class="result-unit-label" id="mb_unit">kg</div>
+            </div>
+        </div>
+
+        <div class="result-row">
+            <div class="result-color-swatch" style="background:var(--add-color)"></div>
+            <div class="result-info">
+                <div class="result-name">添加劑 Additive</div>
+                <span class="result-pct-badge" id="add_pct">0.0 %</span>
+            </div>
+            <div class="result-value">
+                <div class="result-num" id="add_val">—</div>
+                <div class="result-unit-label" id="add_unit">kg</div>
+            </div>
+        </div>
+
+        <div class="result-row total">
+            <div class="result-color-swatch" style="background:#b45309"></div>
+            <div class="result-info">
+                <div class="result-name" style="color:#b45309; font-size:1rem;">總重 Total</div>
+                <span class="result-pct-badge">100.0 %</span>
+            </div>
+            <div class="result-value">
+                <div class="result-num total-num" id="total_val">—</div>
+                <div class="result-unit-label">kg</div>
             </div>
         </div>
     </div>
@@ -490,17 +542,21 @@ function formatWeight(w) {
 function calculate(mode) {
     if (mode) activeMode = mode;
 
-    const mb_p = parseFloat(document.getElementById('mb_ratio').value) || 0;
+    const mb_p  = parseFloat(document.getElementById('mb_ratio').value)  || 0;
     const add_p = parseFloat(document.getElementById('add_ratio').value) || 0;
     const main_p = Math.max(0, 100 - mb_p - add_p);
 
-    // Update ratio bar
-    document.getElementById('bar_pp').style.flex = main_p;
-    document.getElementById('bar_mb').style.flex = mb_p;
-    document.getElementById('bar_add').style.flex = add_p;
-    document.getElementById('leg_pp').textContent = `PP ${main_p.toFixed(1)}%`;
-    document.getElementById('leg_mb').textContent = `MB ${mb_p.toFixed(1)}%`;
-    document.getElementById('leg_add').textContent = `ADD ${add_p.toFixed(1)}%`;
+    document.getElementById('bar_pp').style.flex  = main_p;
+    document.getElementById('bar_mb').style.flex  = mb_p  || 0.001;
+    document.getElementById('bar_add').style.flex = add_p || 0.001;
+
+    document.getElementById('bar_pp_lbl').textContent  = main_p > 8 ? `PP ${main_p.toFixed(1)}%`  : '';
+    document.getElementById('bar_mb_lbl').textContent  = mb_p  > 8 ? `MB ${mb_p.toFixed(1)}%`   : '';
+    document.getElementById('bar_add_lbl').textContent = add_p > 8 ? `ADD ${add_p.toFixed(1)}%` : '';
+
+    document.getElementById('leg_pp').textContent  = main_p.toFixed(1) + '%';
+    document.getElementById('leg_mb').textContent  = mb_p.toFixed(1)  + '%';
+    document.getElementById('leg_add').textContent = add_p.toFixed(1) + '%';
 
     let totalW = 0, mainW = 0, mbW = 0, addW = 0;
 
@@ -516,28 +572,27 @@ function calculate(mode) {
         if (el) el.value = mainW > 0 ? mainW.toFixed(2) : '';
     }
 
-    mbW = totalW * (mb_p / 100);
+    mbW  = totalW * (mb_p  / 100);
     addW = totalW * (add_p / 100);
 
-    const pp = formatWeight(mainW);
-    const mb = formatWeight(mbW);
+    const pp  = formatWeight(mainW);
+    const mb  = formatWeight(mbW);
     const add = formatWeight(addW);
     const tot = formatWeight(totalW);
 
-    document.getElementById('pp_pct').textContent = `${main_p.toFixed(1)} %`;
-    document.getElementById('mb_pct').textContent = `${mb_p.toFixed(1)} %`;
-    document.getElementById('add_pct').textContent = `${add_p.toFixed(1)} %`;
+    document.getElementById('pp_pct').textContent  = main_p.toFixed(1) + ' %';
+    document.getElementById('mb_pct').textContent  = mb_p.toFixed(1)  + ' %';
+    document.getElementById('add_pct').textContent = add_p.toFixed(1) + ' %';
 
-    document.getElementById('pp_val').textContent = pp.val;
+    document.getElementById('pp_val').textContent  = pp.val;
     document.getElementById('pp_unit').textContent = pp.unit;
-    document.getElementById('mb_val').textContent = mb.val;
+    document.getElementById('mb_val').textContent  = mb.val;
     document.getElementById('mb_unit').textContent = mb.unit;
-    document.getElementById('add_val').textContent = add.val;
+    document.getElementById('add_val').textContent  = add.val;
     document.getElementById('add_unit').textContent = add.unit;
     document.getElementById('total_val').textContent = tot.val;
 }
 
-// Init
 calculate('total');
 </script>
 </body>
