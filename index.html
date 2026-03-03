@@ -36,7 +36,7 @@
         /* ── Language switcher ── */
         .lang-bar {
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
             margin-bottom: 18px;
         }
         .lang-switcher {
@@ -84,14 +84,7 @@
             text-transform: uppercase;
             margin-bottom: 4px;
         }
-        .header h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.6rem;
-            letter-spacing: 0.04em;
-            line-height: 1;
-            color: var(--text-dark);
-        }
-        .header h1 span { color: var(--accent); }
+        .header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: 0.04em; line-height: 1; color: var(--text-dark); }
         .header-badge {
             background: var(--accent);
             color: #fff;
@@ -334,7 +327,7 @@
     <div class="header">
         <div class="header-left">
             <div class="header-tag" id="txt_subtitle">Polypropylene Extrusion</div>
-            <h1 id="txt_title_1">PP下料<span id="txt_title_2">計算</span></h1>
+            <h1><span id="txt_title_1">PP下料</span><span id="txt_title_2" style="color:var(--accent)">計算</span></h1>
         </div>
         <div class="header-badge">DOSING v3.0</div>
     </div>
@@ -566,8 +559,8 @@ const LANG = {
     },
     vi: {
         subtitle:      'Máy Đùn Polypropylene',
-        title_1:       'PP TÍNH ',
-        title_2:       'LIỀU',
+        title_1:       'PP Tính ',
+        title_2:       'Liều Lượng',
         card1_title:   'Cài Đặt Tỷ Lệ Công Thức',
         mb_label:      'Hạt màu Color MB',
         add_label:     'Phụ gia Additive',
@@ -611,9 +604,7 @@ function setLang(lang) {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     set('txt_subtitle',    L.subtitle);
     set('txt_title_1',     L.title_1);
-    // keep span for colour
-    const t2 = document.getElementById('txt_title_2');
-    if (t2) t2.textContent = L.title_2;
+    set('txt_title_2',     L.title_2);
     set('txt_card1_title', L.card1_title);
     set('txt_mb_label',    L.mb_label);
     set('txt_add_label',   L.add_label);
