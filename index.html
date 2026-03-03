@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PP 押出機下料計算器</title>
+    <title>PP 下料計算 / Tính Liều Lượng PP</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,6 +14,7 @@
             --border: #e0e4ea;
             --accent: #1a6fff;
             --pp-color: #1a6fff;
+            --rg-color: #8b5cf6;
             --mb-color: #ff7c00;
             --add-color: #00b87a;
             --text-dark: #111827;
@@ -27,14 +28,50 @@
             background: var(--bg);
             color: var(--text-dark);
             min-height: 100vh;
-            padding: 24px 16px 60px;
+            padding: 20px 16px 60px;
         }
 
         .container { max-width: 520px; margin: 0 auto; }
 
-        /* Header */
+        /* ── Language switcher ── */
+        .lang-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 18px;
+        }
+        .lang-switcher {
+            display: flex;
+            background: #fff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .lang-btn {
+            padding: 7px 16px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            color: var(--text-mid);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.18s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lang-btn .flag { font-size: 1rem; }
+        .lang-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+        .lang-btn:not(.active):hover { background: #f0f4ff; }
+
+        /* ── Header ── */
         .header {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
@@ -49,7 +86,7 @@
         }
         .header h1 {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.8rem;
+            font-size: 2.6rem;
             letter-spacing: 0.04em;
             line-height: 1;
             color: var(--text-dark);
@@ -67,7 +104,7 @@
             white-space: nowrap;
         }
 
-        /* Card */
+        /* ── Card ── */
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -93,27 +130,36 @@
         .card-title {
             font-size: 0.88rem;
             font-weight: 700;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
             color: var(--text-dark);
         }
         .card-body { padding: 20px; }
 
-        /* Inputs */
+        /* ── Inputs ── */
         .input-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
         .input-group label {
             display: block;
             font-family: 'DM Mono', monospace;
-            font-size: 0.68rem;
+            font-size: 0.63rem;
             font-weight: 600;
             color: var(--text-mid);
-            letter-spacing: 0.06em;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
             margin-bottom: 7px;
+            line-height: 1.3;
+        }
+        .label-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+            margin-top: -2px;
         }
         .input-wrap {
             position: relative;
@@ -127,235 +173,137 @@
             border-radius: 8px;
             color: var(--text-dark);
             font-family: 'DM Mono', monospace;
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 600;
-            padding: 11px 40px 11px 14px;
+            padding: 11px 36px 11px 12px;
             transition: border-color 0.2s, box-shadow 0.2s;
             -moz-appearance: textfield;
         }
         .input-wrap input::-webkit-outer-spin-button,
         .input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
-        .input-wrap input:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(26,111,255,0.12);
-        }
+        .input-wrap input:focus { outline: none; border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(26,111,255,0.12); }
+        .input-wrap input.focus-rg:focus  { border-color: var(--rg-color);  box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+        .input-wrap input.focus-mb:focus  { border-color: var(--mb-color);  box-shadow: 0 0 0 3px rgba(255,124,0,0.12);  }
+        .input-wrap input.focus-add:focus { border-color: var(--add-color); box-shadow: 0 0 0 3px rgba(0,184,122,0.12);  }
         .input-wrap input::placeholder { color: var(--text-light); font-weight: 400; }
         .input-unit {
-            position: absolute;
-            right: 12px;
+            position: absolute; right: 10px;
             font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-light);
-            pointer-events: none;
+            font-size: 0.68rem; font-weight: 600;
+            color: var(--text-light); pointer-events: none;
         }
 
-        /* ===== THICK RATIO BAR ===== */
+        /* ── Regrind notice ── */
+        .regrind-notice {
+            display: flex; align-items: center; gap: 8px;
+            background: #f5f3ff; border: 1.5px solid #ddd6fe;
+            border-radius: 8px; padding: 9px 13px;
+            margin-top: 4px; margin-bottom: 18px;
+        }
+        .regrind-notice-text {
+            font-size: 0.72rem; color: #6d28d9;
+            font-weight: 500; line-height: 1.4;
+        }
+
+        /* ── Thick Ratio Bar ── */
         .ratio-section {
             background: linear-gradient(135deg, #eef3ff 0%, #f0f7ff 100%);
-            border: 2px solid #c7d8ff;
-            border-radius: 12px;
+            border: 2px solid #c7d8ff; border-radius: 12px;
             padding: 18px 18px 16px;
         }
         .ratio-section-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-mid);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
+            font-family: 'DM Mono', monospace; font-size: 0.72rem;
+            font-weight: 600; color: var(--text-mid);
+            letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;
         }
         .ratio-bar-track {
-            height: 48px;
-            background: #dde4ee;
-            border-radius: 10px;
-            display: flex;
-            overflow: hidden;
-            gap: 3px;
-            margin-bottom: 14px;
+            height: 48px; background: #dde4ee; border-radius: 10px;
+            display: flex; overflow: hidden; gap: 3px; margin-bottom: 14px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
         }
         .bar-seg {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 0;
-            transition: flex 0.35s cubic-bezier(0.4,0,0.2,1);
-            overflow: hidden;
-            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            min-width: 0; transition: flex 0.35s cubic-bezier(0.4,0,0.2,1);
+            overflow: hidden; position: relative;
         }
         .bar-seg:first-child { border-radius: 9px 0 0 9px; }
-        .bar-seg:last-child { border-radius: 0 9px 9px 0; }
+        .bar-seg:last-child  { border-radius: 0 9px 9px 0; }
         .bar-seg-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: rgba(255,255,255,0.97);
-            white-space: nowrap;
-            pointer-events: none;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            letter-spacing: 0.04em;
+            font-family: 'DM Mono', monospace; font-size: 0.7rem;
+            font-weight: 700; color: rgba(255,255,255,0.97);
+            white-space: nowrap; pointer-events: none;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3); letter-spacing: 0.03em;
         }
         #bar_pp  { background: linear-gradient(180deg, #3d8bff 0%, #1a6fff 100%); }
+        #bar_rg  { background: linear-gradient(180deg, #a78bfa 0%, #8b5cf6 100%); }
         #bar_mb  { background: linear-gradient(180deg, #ff9a33 0%, #ff7c00 100%); }
         #bar_add { background: linear-gradient(180deg, #2dd897 0%, #00b87a 100%); }
 
-        .ratio-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+        .ratio-pills { display: flex; gap: 7px; flex-wrap: wrap; }
         .ratio-pill {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            background: #fff;
-            border: 1.5px solid var(--border);
-            border-radius: 20px;
-            padding: 6px 13px 6px 9px;
+            display: flex; align-items: center; gap: 6px;
+            background: #fff; border: 1.5px solid var(--border);
+            border-radius: 20px; padding: 5px 11px 5px 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
-        .pill-dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .pill-name {
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--text-mid);
-        }
-        .pill-pct {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
+        .pill-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .pill-name { font-family: 'Noto Sans TC', sans-serif; font-size: 0.7rem; font-weight: 700; color: var(--text-mid); }
+        .pill-pct  { font-family: 'DM Mono', monospace; font-size: 0.84rem; font-weight: 700; color: var(--text-dark); }
 
-        /* Mode tabs */
+        /* ── Mode tabs ── */
         .mode-tabs {
-            display: flex;
-            background: #f0f2f5;
-            border: 2px solid var(--border);
-            border-radius: 9px;
-            overflow: hidden;
-            margin-bottom: 16px;
-            padding: 3px;
-            gap: 3px;
+            display: flex; background: #f0f2f5; border: 2px solid var(--border);
+            border-radius: 9px; overflow: hidden; margin-bottom: 16px;
+            padding: 3px; gap: 3px;
         }
         .mode-tab {
-            flex: 1;
-            padding: 10px 8px;
-            text-align: center;
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-mid);
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            transition: all 0.2s;
-            border-radius: 6px;
+            flex: 1; padding: 10px 8px; text-align: center;
+            font-family: 'Noto Sans TC', sans-serif; font-size: 0.78rem;
+            font-weight: 700; color: var(--text-mid); cursor: pointer;
+            border: none; background: transparent; transition: all 0.2s; border-radius: 6px;
         }
-        .mode-tab.active {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 2px 6px rgba(26,111,255,0.3);
-        }
+        .mode-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(26,111,255,0.3); }
 
-        /* Results */
+        /* ── Results ── */
         .result-card {
-            background: var(--card);
-            border: 2px solid var(--accent);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(26,111,255,0.12);
-            overflow: hidden;
+            background: var(--card); border: 2px solid var(--accent);
+            border-radius: 12px; box-shadow: 0 4px 20px rgba(26,111,255,0.12); overflow: hidden;
         }
         .result-header {
-            background: var(--accent);
-            padding: 13px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: var(--accent); padding: 13px 20px;
+            display: flex; align-items: center; gap: 10px;
         }
-        .result-header-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.05em;
-        }
+        .result-header-title { font-size: 0.85rem; font-weight: 700; color: #fff; letter-spacing: 0.05em; }
 
         .result-row {
-            display: flex;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
+            display: flex; align-items: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border); transition: background 0.15s;
         }
         .result-row:hover { background: #fafbfd; }
         .result-row:last-child { border-bottom: none; }
-        .result-row.total {
-            background: #fffcf0;
-            border-top: 2px solid #ffe4a0;
-        }
+        .result-row.sub-row { background: #faf8ff; padding-left: 28px; }
+        .result-row.sub-row:hover { background: #f3f0ff; }
+        .result-row.total { background: #fffcf0; border-top: 2px solid #ffe4a0; }
         .result-row.total:hover { background: #fff8e0; }
 
-        .result-color-swatch {
-            width: 10px;
-            height: 48px;
-            border-radius: 5px;
-            margin-right: 16px;
-            flex-shrink: 0;
-        }
+        .result-color-swatch      { width: 10px; height: 46px; border-radius: 5px; margin-right: 16px; flex-shrink: 0; }
+        .result-color-swatch.thin { width: 6px; height: 36px; border-radius: 3px; margin-right: 12px; opacity: 0.75; }
         .result-info { flex: 1; }
-        .result-name {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
+        .result-name     { font-size: 0.92rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+        .result-name.sub { font-size: 0.82rem; font-weight: 600; color: var(--text-mid); }
         .result-pct-badge {
-            display: inline-block;
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            border-radius: 5px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-mid);
-            padding: 2px 8px;
+            display: inline-block; background: var(--bg);
+            border: 1.5px solid var(--border); border-radius: 5px;
+            font-family: 'DM Mono', monospace; font-size: 0.68rem;
+            font-weight: 600; color: var(--text-mid); padding: 2px 7px;
         }
         .result-value { text-align: right; }
-        .result-num {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.4rem;
-            line-height: 1;
-            color: var(--text-dark);
-            letter-spacing: 0.03em;
-        }
-        .result-num.total-num { color: #b45309; font-size: 2.6rem; }
-        .result-unit-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-light);
-            margin-top: 3px;
-            text-align: right;
-        }
+        .result-num           { font-family: 'Bebas Neue', sans-serif; font-size: 2.3rem; line-height: 1; color: var(--text-dark); letter-spacing: 0.03em; }
+        .result-num.sub       { font-size: 1.7rem; color: var(--text-mid); }
+        .result-num.total-num { color: #b45309; font-size: 2.5rem; }
+        .result-unit-label    { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 600; color: var(--text-light); margin-top: 3px; text-align: right; }
 
-        .footer {
-            text-align: center;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.63rem;
-            color: var(--text-light);
-            margin-top: 24px;
-            letter-spacing: 0.1em;
-        }
+        .footer { text-align: center; font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--text-light); margin-top: 24px; letter-spacing: 0.1em; }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
@@ -370,59 +318,93 @@
 <body>
 <div class="container">
 
-    <div class="header">
-        <div class="header-left">
-            <div class="header-tag">Polypropylene Extrusion</div>
-            <h1>下料<span>計算</span></h1>
+    <!-- Language Bar -->
+    <div class="lang-bar">
+        <div class="lang-switcher">
+            <button class="lang-btn active" id="btn_zh" onclick="setLang('zh')">
+                <span class="flag">🇹🇼</span> 繁中
+            </button>
+            <button class="lang-btn" id="btn_vi" onclick="setLang('vi')">
+                <span class="flag">🇻🇳</span> Tiếng Việt
+            </button>
         </div>
-        <div class="header-badge">DOSING v2.0</div>
     </div>
 
-    <!-- Card 1 -->
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="header-tag" id="txt_subtitle">Polypropylene Extrusion</div>
+            <h1 id="txt_title_1">PP下料<span id="txt_title_2">計算</span></h1>
+        </div>
+        <div class="header-badge">DOSING v3.0</div>
+    </div>
+
+    <!-- Card 1: Formula -->
     <div class="card">
         <div class="card-header">
             <span class="card-num">01</span>
-            <span class="card-title">配方比例設定</span>
+            <span class="card-title" id="txt_card1_title">配方比例設定</span>
         </div>
         <div class="card-body">
             <div class="input-row">
                 <div class="input-group">
-                    <label>色母 Color MB</label>
+                    <label><span class="label-dot" style="background:var(--mb-color)"></span><span id="txt_mb_label">色母 Color MB</span></label>
                     <div class="input-wrap">
-                        <input type="number" id="mb_ratio" value="2.0" step="0.1" min="0" max="100" oninput="calculate()">
+                        <input type="number" id="mb_ratio" value="2.0" step="0.1" min="0" max="100" class="focus-mb" oninput="calculate()">
                         <span class="input-unit">%</span>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>添加劑 Additive</label>
+                    <label><span class="label-dot" style="background:var(--add-color)"></span><span id="txt_add_label">添加劑 Additive</span></label>
                     <div class="input-wrap">
-                        <input type="number" id="add_ratio" value="0.0" step="0.1" min="0" max="100" oninput="calculate()">
+                        <input type="number" id="add_ratio" value="0.0" step="0.1" min="0" max="100" class="focus-add" oninput="calculate()">
                         <span class="input-unit">%</span>
                     </div>
                 </div>
             </div>
 
+            <div class="input-row" style="margin-bottom:8px;">
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <label><span class="label-dot" style="background:var(--rg-color)"></span><span id="txt_rg_label">粉碎料 Regrind（佔總料 %）</span></label>
+                    <div class="input-wrap">
+                        <input type="number" id="rg_ratio" value="0.0" step="0.5" min="0" max="100" class="focus-rg" oninput="calculate()">
+                        <span class="input-unit">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="regrind-notice">
+                <span style="font-size:0.9rem">♻️</span>
+                <span class="regrind-notice-text" id="txt_rg_notice">粉碎料佔 PP 主料比例，新 PP = 主料總重 − 粉碎料重量</span>
+            </div>
+
             <div class="ratio-section">
-                <div class="ratio-section-label">配方比例分佈</div>
+                <div class="ratio-section-label" id="txt_ratio_label">配方比例分佈</div>
                 <div class="ratio-bar-track">
-                    <div class="bar-seg" id="bar_pp"><span class="bar-seg-label" id="bar_pp_lbl">PP 98.0%</span></div>
-                    <div class="bar-seg" id="bar_mb"><span class="bar-seg-label" id="bar_mb_lbl">MB 2%</span></div>
+                    <div class="bar-seg" id="bar_pp" ><span class="bar-seg-label" id="bar_pp_lbl" >PP 新料</span></div>
+                    <div class="bar-seg" id="bar_rg" ><span class="bar-seg-label" id="bar_rg_lbl" ></span></div>
+                    <div class="bar-seg" id="bar_mb" ><span class="bar-seg-label" id="bar_mb_lbl" ></span></div>
                     <div class="bar-seg" id="bar_add"><span class="bar-seg-label" id="bar_add_lbl"></span></div>
                 </div>
                 <div class="ratio-pills">
                     <div class="ratio-pill">
                         <div class="pill-dot" style="background:var(--pp-color)"></div>
-                        <span class="pill-name">PP 主料</span>
+                        <span class="pill-name" id="txt_pill_pp">PP 新料</span>
                         <span class="pill-pct" id="leg_pp">98.0%</span>
                     </div>
                     <div class="ratio-pill">
+                        <div class="pill-dot" style="background:var(--rg-color)"></div>
+                        <span class="pill-name" id="txt_pill_rg">粉碎料</span>
+                        <span class="pill-pct" id="leg_rg">0.0%</span>
+                    </div>
+                    <div class="ratio-pill">
                         <div class="pill-dot" style="background:var(--mb-color)"></div>
-                        <span class="pill-name">色母</span>
+                        <span class="pill-name" id="txt_pill_mb">色母</span>
                         <span class="pill-pct" id="leg_mb">2.0%</span>
                     </div>
                     <div class="ratio-pill">
                         <div class="pill-dot" style="background:var(--add-color)"></div>
-                        <span class="pill-name">添加劑</span>
+                        <span class="pill-name" id="txt_pill_add">添加劑</span>
                         <span class="pill-pct" id="leg_add">0.0%</span>
                     </div>
                 </div>
@@ -430,31 +412,31 @@
         </div>
     </div>
 
-    <!-- Card 2 -->
+    <!-- Card 2: Dosing -->
     <div class="card">
         <div class="card-header">
             <span class="card-num">02</span>
-            <span class="card-title">下料計算（二選一）</span>
+            <span class="card-title" id="txt_card2_title">下料計算（二選一）</span>
         </div>
         <div class="card-body">
             <div class="mode-tabs">
-                <button class="mode-tab active" id="tab_total" onclick="switchMode('total')">模式 A · 輸入總產量</button>
-                <button class="mode-tab" id="tab_main" onclick="switchMode('main')">模式 B · 輸入主料重</button>
+                <button class="mode-tab active" id="tab_total" onclick="switchMode('total')"><span id="txt_tab_a">模式 A · 輸入總產量</span></button>
+                <button class="mode-tab" id="tab_main"  onclick="switchMode('main')"><span id="txt_tab_b">模式 B · 輸入主料重</span></button>
             </div>
             <div id="input_total">
                 <div class="input-group">
-                    <label>預計總產量 Total Output</label>
+                    <label id="txt_total_label">預計總產量 Total Output</label>
                     <div class="input-wrap">
-                        <input type="number" id="total_weight" placeholder="例如 500" oninput="calculate('total')">
+                        <input type="number" id="total_weight" placeholder="500" oninput="calculate('total')">
                         <span class="input-unit">kg</span>
                     </div>
                 </div>
             </div>
             <div id="input_main" style="display:none">
                 <div class="input-group">
-                    <label>固定主料重量 PP Base Weight</label>
+                    <label id="txt_main_label">PP 主料總重（新料＋粉碎料）</label>
                     <div class="input-wrap">
-                        <input type="number" id="main_weight" placeholder="例如 25（一袋）" oninput="calculate('main')">
+                        <input type="number" id="main_weight" placeholder="25" oninput="calculate('main')">
                         <span class="input-unit">kg</span>
                     </div>
                 </div>
@@ -466,25 +448,49 @@
     <div class="result-card">
         <div class="result-header">
             <span style="font-size:1rem">📋</span>
-            <span class="result-header-title">配料清單 · BILL OF MATERIALS</span>
+            <span class="result-header-title" id="txt_bom_title">配料清單 · BILL OF MATERIALS</span>
         </div>
 
         <div class="result-row">
             <div class="result-color-swatch" style="background:var(--pp-color)"></div>
             <div class="result-info">
-                <div class="result-name">PP 主料</div>
-                <span class="result-pct-badge" id="pp_pct">98.0 %</span>
+                <div class="result-name" id="txt_res_pp_total">PP 主料（合計）</div>
+                <span class="result-pct-badge" id="pp_total_pct">98.0 %</span>
             </div>
             <div class="result-value">
-                <div class="result-num" id="pp_val">—</div>
-                <div class="result-unit-label" id="pp_unit">kg</div>
+                <div class="result-num" id="pp_total_val">—</div>
+                <div class="result-unit-label" id="pp_total_unit">kg</div>
+            </div>
+        </div>
+
+        <div class="result-row sub-row">
+            <div class="result-color-swatch thin" style="background:var(--pp-color)"></div>
+            <div class="result-info">
+                <div class="result-name sub" id="txt_res_pp_new">↳ PP 新料 Virgin</div>
+                <span class="result-pct-badge" id="pp_new_pct">98.0 %</span>
+            </div>
+            <div class="result-value">
+                <div class="result-num sub" id="pp_new_val">—</div>
+                <div class="result-unit-label" id="pp_new_unit">kg</div>
+            </div>
+        </div>
+
+        <div class="result-row sub-row">
+            <div class="result-color-swatch thin" style="background:var(--rg-color)"></div>
+            <div class="result-info">
+                <div class="result-name sub" id="txt_res_rg">↳ 粉碎料 Regrind</div>
+                <span class="result-pct-badge" id="rg_pct">0.0 %</span>
+            </div>
+            <div class="result-value">
+                <div class="result-num sub" id="rg_val">—</div>
+                <div class="result-unit-label" id="rg_unit">kg</div>
             </div>
         </div>
 
         <div class="result-row">
             <div class="result-color-swatch" style="background:var(--mb-color)"></div>
             <div class="result-info">
-                <div class="result-name">色母 Color MB</div>
+                <div class="result-name" id="txt_res_mb">色母 Color MB</div>
                 <span class="result-pct-badge" id="mb_pct">2.0 %</span>
             </div>
             <div class="result-value">
@@ -496,7 +502,7 @@
         <div class="result-row">
             <div class="result-color-swatch" style="background:var(--add-color)"></div>
             <div class="result-info">
-                <div class="result-name">添加劑 Additive</div>
+                <div class="result-name" id="txt_res_add">添加劑 Additive</div>
                 <span class="result-pct-badge" id="add_pct">0.0 %</span>
             </div>
             <div class="result-value">
@@ -508,7 +514,7 @@
         <div class="result-row total">
             <div class="result-color-swatch" style="background:#b45309"></div>
             <div class="result-info">
-                <div class="result-name" style="color:#b45309; font-size:1rem;">總重 Total</div>
+                <div class="result-name" style="color:#b45309; font-size:1rem;" id="txt_res_total">總重 Total</div>
                 <span class="result-pct-badge">100.0 %</span>
             </div>
             <div class="result-value">
@@ -518,18 +524,132 @@
         </div>
     </div>
 
-    <div class="footer">PP EXTRUSION DOSING CALCULATOR · INDUSTRIAL TOOL</div>
+    <div class="footer" id="txt_footer">PP EXTRUSION DOSING CALCULATOR · v3.0 · WITH REGRIND</div>
 </div>
 
 <script>
-let activeMode = 'total';
+/* ═══════════════════════════════════════
+   LANGUAGE STRINGS
+═══════════════════════════════════════ */
+const LANG = {
+    zh: {
+        subtitle:      'Polypropylene Extrusion',
+        title_1:       'PP下料',
+        title_2:       '計算',
+        card1_title:   '配方比例設定',
+        mb_label:      '色母 Color MB',
+        add_label:     '添加劑 Additive',
+        rg_label:      '粉碎料 Regrind（佔總料 %）',
+        rg_notice:     '粉碎料佔 PP 主料比例，新 PP = 主料總重 − 粉碎料重量',
+        ratio_label:   '配方比例分佈',
+        pill_pp:       'PP 新料',
+        pill_rg:       '粉碎料',
+        pill_mb:       '色母',
+        pill_add:      '添加劑',
+        card2_title:   '下料計算（二選一）',
+        tab_a:         '模式 A · 輸入總產量',
+        tab_b:         '模式 B · 輸入主料重',
+        total_label:   '預計總產量 Total Output',
+        main_label:    'PP 主料總重（新料＋粉碎料）',
+        bom_title:     '配料清單 · BILL OF MATERIALS',
+        res_pp_total:  'PP 主料（合計）',
+        res_pp_new:    '↳ PP 新料 Virgin',
+        res_rg:        '↳ 粉碎料 Regrind',
+        res_mb:        '色母 Color MB',
+        res_add:       '添加劑 Additive',
+        res_total:     '總重 Total',
+        bar_pp:        '新料',
+        bar_rg:        '粉碎',
+        bar_mb:        'MB',
+        bar_add:       'ADD',
+        footer:        'PP EXTRUSION DOSING CALCULATOR · v3.0 · WITH REGRIND',
+    },
+    vi: {
+        subtitle:      'Máy Đùn Polypropylene',
+        title_1:       'PP TÍNH ',
+        title_2:       'LIỀU',
+        card1_title:   'Cài Đặt Tỷ Lệ Công Thức',
+        mb_label:      'Hạt màu Color MB',
+        add_label:     'Phụ gia Additive',
+        rg_label:      'Phế liệu nghiền Regrind (% tổng)',
+        rg_notice:     'Phế liệu nghiền chiếm tỷ lệ trong PP chính. PP mới = Tổng PP − Phế liệu nghiền',
+        ratio_label:   'Phân Bố Tỷ Lệ Công Thức',
+        pill_pp:       'PP Mới',
+        pill_rg:       'Phế liệu',
+        pill_mb:       'Hạt màu',
+        pill_add:      'Phụ gia',
+        card2_title:   'Tính Liều Lượng (Chọn 1 trong 2)',
+        tab_a:         'Chế độ A · Tổng sản lượng',
+        tab_b:         'Chế độ B · Khối lượng PP chính',
+        total_label:   'Tổng Sản Lượng Dự Kiến',
+        main_label:    'Tổng PP Chính (Mới + Phế liệu)',
+        bom_title:     'DANH SÁCH NGUYÊN LIỆU · BOM',
+        res_pp_total:  'PP Chính (Tổng cộng)',
+        res_pp_new:    '↳ PP Nguyên sinh Virgin',
+        res_rg:        '↳ Phế liệu nghiền Regrind',
+        res_mb:        'Hạt màu Color MB',
+        res_add:       'Phụ gia Additive',
+        res_total:     'Tổng Khối Lượng',
+        bar_pp:        'PP mới',
+        bar_rg:        'Phế liệu',
+        bar_mb:        'MB',
+        bar_add:       'PG',
+        footer:        'MÁY TÍNH LIỀU LƯỢNG ĐÙN PP · v3.0 · CÓ PHẾ LIỆU NGHIỀN',
+    }
+};
 
+let currentLang = 'zh';
+let activeMode  = 'total';
+
+function setLang(lang) {
+    currentLang = lang;
+    const L = LANG[lang];
+    document.getElementById('btn_zh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btn_vi').classList.toggle('active', lang === 'vi');
+    document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'vi';
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('txt_subtitle',    L.subtitle);
+    set('txt_title_1',     L.title_1);
+    // keep span for colour
+    const t2 = document.getElementById('txt_title_2');
+    if (t2) t2.textContent = L.title_2;
+    set('txt_card1_title', L.card1_title);
+    set('txt_mb_label',    L.mb_label);
+    set('txt_add_label',   L.add_label);
+    set('txt_rg_label',    L.rg_label);
+    set('txt_rg_notice',   L.rg_notice);
+    set('txt_ratio_label', L.ratio_label);
+    set('txt_pill_pp',     L.pill_pp);
+    set('txt_pill_rg',     L.pill_rg);
+    set('txt_pill_mb',     L.pill_mb);
+    set('txt_pill_add',    L.pill_add);
+    set('txt_card2_title', L.card2_title);
+    set('txt_tab_a',       L.tab_a);
+    set('txt_tab_b',       L.tab_b);
+    set('txt_total_label', L.total_label);
+    set('txt_main_label',  L.main_label);
+    set('txt_bom_title',   L.bom_title);
+    set('txt_res_pp_total',L.res_pp_total);
+    set('txt_res_pp_new',  L.res_pp_new);
+    set('txt_res_rg',      L.res_rg);
+    set('txt_res_mb',      L.res_mb);
+    set('txt_res_add',     L.res_add);
+    set('txt_res_total',   L.res_total);
+    set('txt_footer',      L.footer);
+
+    calculate(); // re-run to refresh bar labels
+}
+
+/* ═══════════════════════════════════════
+   CALCULATOR LOGIC
+═══════════════════════════════════════ */
 function switchMode(mode) {
     activeMode = mode;
     document.getElementById('input_total').style.display = mode === 'total' ? 'block' : 'none';
-    document.getElementById('input_main').style.display = mode === 'main' ? 'block' : 'none';
+    document.getElementById('input_main').style.display  = mode === 'main'  ? 'block' : 'none';
     document.getElementById('tab_total').classList.toggle('active', mode === 'total');
-    document.getElementById('tab_main').classList.toggle('active', mode === 'main');
+    document.getElementById('tab_main').classList.toggle('active',  mode === 'main');
     calculate(mode);
 }
 
@@ -539,58 +659,70 @@ function formatWeight(w) {
     return { val: w.toFixed(2), unit: 'kg' };
 }
 
+function setResult(idVal, idUnit, w) {
+    const f = formatWeight(w);
+    document.getElementById(idVal).textContent  = f.val;
+    document.getElementById(idUnit).textContent = f.unit;
+}
+
 function calculate(mode) {
-    if (mode) activeMode = mode;
+    if (mode && mode !== currentLang) activeMode = mode;
 
-    const mb_p  = parseFloat(document.getElementById('mb_ratio').value)  || 0;
-    const add_p = parseFloat(document.getElementById('add_ratio').value) || 0;
-    const main_p = Math.max(0, 100 - mb_p - add_p);
+    const mb_p   = parseFloat(document.getElementById('mb_ratio').value)  || 0;
+    const add_p  = parseFloat(document.getElementById('add_ratio').value) || 0;
+    const rg_p   = parseFloat(document.getElementById('rg_ratio').value)  || 0;
+    const pp_main_p   = Math.max(0, 100 - mb_p - add_p);
+    const rg_actual_p = Math.min(rg_p, pp_main_p);
+    const pp_new_p    = pp_main_p - rg_actual_p;
 
-    document.getElementById('bar_pp').style.flex  = main_p;
-    document.getElementById('bar_mb').style.flex  = mb_p  || 0.001;
-    document.getElementById('bar_add').style.flex = add_p || 0.001;
+    // Bar
+    document.getElementById('bar_pp').style.flex  = pp_new_p    || 0.001;
+    document.getElementById('bar_rg').style.flex  = rg_actual_p || 0.001;
+    document.getElementById('bar_mb').style.flex  = mb_p        || 0.001;
+    document.getElementById('bar_add').style.flex = add_p       || 0.001;
 
-    document.getElementById('bar_pp_lbl').textContent  = main_p > 8 ? `PP ${main_p.toFixed(1)}%`  : '';
-    document.getElementById('bar_mb_lbl').textContent  = mb_p  > 8 ? `MB ${mb_p.toFixed(1)}%`   : '';
-    document.getElementById('bar_add_lbl').textContent = add_p > 8 ? `ADD ${add_p.toFixed(1)}%` : '';
+    const L = LANG[currentLang];
+    const thresh = 7;
+    document.getElementById('bar_pp_lbl').textContent  = pp_new_p    > thresh ? `${L.bar_pp} ${pp_new_p.toFixed(1)}%`    : '';
+    document.getElementById('bar_rg_lbl').textContent  = rg_actual_p > thresh ? `${L.bar_rg} ${rg_actual_p.toFixed(1)}%` : '';
+    document.getElementById('bar_mb_lbl').textContent  = mb_p        > thresh ? `${L.bar_mb} ${mb_p.toFixed(1)}%`        : '';
+    document.getElementById('bar_add_lbl').textContent = add_p       > thresh ? `${L.bar_add} ${add_p.toFixed(1)}%`      : '';
 
-    document.getElementById('leg_pp').textContent  = main_p.toFixed(1) + '%';
-    document.getElementById('leg_mb').textContent  = mb_p.toFixed(1)  + '%';
-    document.getElementById('leg_add').textContent = add_p.toFixed(1) + '%';
+    document.getElementById('leg_pp').textContent  = pp_new_p.toFixed(1)    + '%';
+    document.getElementById('leg_rg').textContent  = rg_actual_p.toFixed(1) + '%';
+    document.getElementById('leg_mb').textContent  = mb_p.toFixed(1)        + '%';
+    document.getElementById('leg_add').textContent = add_p.toFixed(1)       + '%';
 
-    let totalW = 0, mainW = 0, mbW = 0, addW = 0;
-
+    let totalW = 0, mainW = 0;
     if (activeMode === 'main') {
-        mainW = parseFloat(document.getElementById('main_weight').value) || 0;
-        totalW = main_p > 0 ? mainW / (main_p / 100) : 0;
+        mainW  = parseFloat(document.getElementById('main_weight').value) || 0;
+        totalW = pp_main_p > 0 ? mainW / (pp_main_p / 100) : 0;
         const el = document.getElementById('total_weight');
         if (el) el.value = totalW > 0 ? totalW.toFixed(2) : '';
     } else {
         totalW = parseFloat(document.getElementById('total_weight').value) || 0;
-        mainW = totalW * (main_p / 100);
+        mainW  = totalW * (pp_main_p / 100);
         const el = document.getElementById('main_weight');
         if (el) el.value = mainW > 0 ? mainW.toFixed(2) : '';
     }
 
-    mbW  = totalW * (mb_p  / 100);
-    addW = totalW * (add_p / 100);
+    const rgW  = totalW * (rg_actual_p / 100);
+    const ppW  = mainW - rgW;
+    const mbW  = totalW * (mb_p  / 100);
+    const addW = totalW * (add_p / 100);
 
-    const pp  = formatWeight(mainW);
-    const mb  = formatWeight(mbW);
-    const add = formatWeight(addW);
-    const tot = formatWeight(totalW);
+    document.getElementById('pp_total_pct').textContent = pp_main_p.toFixed(1)    + ' %';
+    document.getElementById('pp_new_pct').textContent   = pp_new_p.toFixed(1)     + ' %';
+    document.getElementById('rg_pct').textContent       = rg_actual_p.toFixed(1)  + ' %';
+    document.getElementById('mb_pct').textContent       = mb_p.toFixed(1)         + ' %';
+    document.getElementById('add_pct').textContent      = add_p.toFixed(1)        + ' %';
 
-    document.getElementById('pp_pct').textContent  = main_p.toFixed(1) + ' %';
-    document.getElementById('mb_pct').textContent  = mb_p.toFixed(1)  + ' %';
-    document.getElementById('add_pct').textContent = add_p.toFixed(1) + ' %';
-
-    document.getElementById('pp_val').textContent  = pp.val;
-    document.getElementById('pp_unit').textContent = pp.unit;
-    document.getElementById('mb_val').textContent  = mb.val;
-    document.getElementById('mb_unit').textContent = mb.unit;
-    document.getElementById('add_val').textContent  = add.val;
-    document.getElementById('add_unit').textContent = add.unit;
-    document.getElementById('total_val').textContent = tot.val;
+    setResult('pp_total_val', 'pp_total_unit', mainW);
+    setResult('pp_new_val',   'pp_new_unit',   ppW);
+    setResult('rg_val',       'rg_unit',       rgW);
+    setResult('mb_val',       'mb_unit',       mbW);
+    setResult('add_val',      'add_unit',      addW);
+    document.getElementById('total_val').textContent = formatWeight(totalW).val;
 }
 
 calculate('total');
